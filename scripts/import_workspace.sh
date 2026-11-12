@@ -99,7 +99,7 @@ main() {
 
   if [[ "$dry_run" == "true" ]]; then
     log_info "Dry run requested; skipping authentication and import"
-    jq echo "$request_body"
+    log_info "$request_body"
     #jq '{definitionParts: (.definitionParts | map({path})), options}' <<<"$request_body"
     return 0
   fi
