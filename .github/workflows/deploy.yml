@@ -26,7 +26,7 @@ jobs:
         run: shellcheck scripts/*.sh scripts/lib/*.sh
 
       - name: Validate import payload
-        run: bash scripts/import_workspace.sh --env dev --source fabric --dry-run
+        run: bash scripts/import_workspace.sh --env dev --source fabric
 
   deploy-dev:
     name: Deploy to development
