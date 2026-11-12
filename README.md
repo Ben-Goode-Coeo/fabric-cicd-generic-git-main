@@ -12,7 +12,7 @@ Choose this sample when one or more of the following apply:
 If your environments share a single tenant and you use a Fabric-supported Git provider, evaluate native [Fabric Git integration](https://learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration) and [deployment pipelines](https://learn.microsoft.com/fabric/cicd/deployment-pipelines/intro-to-deployment-pipelines) first.
 
 > [!TIP]
-> This repository provides a GitLab CI/CD pipeline as the concrete example, but the approach is not GitLab-specific. The bash scripts and Bulk APIs work identically regardless of your Git provider. To adopt this pattern with GitHub Actions, Azure Pipelines, Bitbucket Pipelines, or any other CI system, replace `.gitlab-ci.yml` with the equivalent pipeline definition for your tool. The scripts themselves require no changes.
+> This repository provides a GitHub Actions workflow as the concrete example, but the approach is not GitHub-specific. The bash scripts and Bulk APIs work identically regardless of your Git provider and can be used from other CI systems without changes.
 
 ## How it works
 
@@ -65,8 +65,7 @@ A developer iterates in a Fabric feature workspace, exports the workspace into t
 | `scripts/lib/` | Shared bash helpers for logging, auth, config, and API calls. |
 | `config/*.env.example` | Per-environment configuration templates. |
 | `fabric/` | Sample items in native Fabric source format. |
-| `.gitlab-ci.yml` | Example CI/CD pipeline definition (GitLab). |
-| `.github/workflows/quality.yml` | GitHub Actions checks for pull requests. |
+| `.github/workflows/deploy.yml` | GitHub Actions validation and multi-environment deployment workflow. |
 
 ## Prerequisites
 
@@ -171,24 +170,19 @@ scripts/import_workspace.sh --env dev --source fabric             # deploy
 scripts/export_workspace.sh --env dev --output fabric --prune     # capture changes
 ```
 
-### 6. Configure CI/CD (GitLab example)
+### 6. Configure GitHub Actions
 
-The included `.gitlab-ci.yml` is a validated reference implementation. Adapt it to your CI system as needed.
-
-Create environment-scoped CI/CD variables (Settings > CI/CD > Variables) for each GitLab Environment (`dev`, `test`, `prod`):
+The included `.github/workflows/deploy.yml` validates pull requests and deploys changes merged to `main`. Create GitHub Environments named `dev`, `test`, and `prod` under **Settings > Environments**. Add these environment variables to each:
 
 | Variable | Notes |
 |----------|-------|
-| `FABRIC_TENANT_ID` | Service principal tenant ID. |
-| `FABRIC_CLIENT_ID` | Service principal client ID. |
-| `FABRIC_CLIENT_SECRET` | Service principal client secret. Mark masked and protected. |
+| `FABRIC_TENANT_ID` | Service principal tenant ID for that environment. |
+| `FABRIC_CLIENT_ID` | Service principal client ID for that environment. |
 | `FABRIC_WORKSPACE_NAME` | Target workspace display name. |
 
-The pipeline reads these variables directly, so no `config/*.env` file is needed in CI. Its `validate` stage runs ShellCheck and a dry run; `deploy:dev` runs on `main`; `deploy:test` and `deploy:prod` run behind manual gates.
+Add `FABRIC_CLIENT_SECRET` as an environment secret for each environment. Use separate credentials per environment as needed; no `config/*.env` file is required in CI.
 
-#### Troubleshooting CI/CD
-
-* **`deploy` job falls through to Azure CLI auth** — The `FABRIC_CLIENT_SECRET` variable is likely marked **Protected** but the branch is not protected. GitLab only injects protected variables into pipelines running on protected branches. Either uncheck "Protect variable" or protect the `main` branch under Settings > Repository > Protected branches.
+The workflow runs ShellCheck and an import dry run on pull requests and pushes to `main`. A push to `main` deploys to `dev` automatically, then deploys to `test` and `prod` in sequence. To require approval before either promotion, configure **Required reviewers** in the respective `test` and `prod` GitHub Environments. The jobs wait for approval before accessing that environment's variables and secret.
 
 ## Scripts
 

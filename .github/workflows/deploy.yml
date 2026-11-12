@@ -1,70 +1,101 @@
-# GitLab CI/CD pipeline for deploying Fabric item definitions with the
-# Bulk Import Item Definitions API.
-#
-# Service principal credentials are supplied as environment-scoped CI/CD
-# variables (Settings > CI/CD > Variables), one set per GitLab Environment:
-#   FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET, FABRIC_WORKSPACE_NAME
-# Mark FABRIC_CLIENT_SECRET as masked and protected.
+name: Fabric CI/CD
 
-stages:
-  - validate
-  - deploy_dev
-  - deploy_test
-  - deploy_prod
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
-default:
-  image: ubuntu:24.04
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq curl jq ca-certificates >/dev/null
-    - chmod +x scripts/*.sh
+permissions:
+  contents: read
 
-# Validate scripts and payload on every merge request and on main.
-validate:
-  stage: validate
-  image: koalaman/shellcheck-alpine:v0.11.0
-  environment:
-    name: dev
-    action: prepare
-  before_script:
-    - apk add --no-cache bash jq findutils coreutils >/dev/null
-    - chmod +x scripts/*.sh scripts/lib/*.sh
-  script:
-    - shellcheck scripts/*.sh scripts/lib/*.sh
-    - bash scripts/import_workspace.sh --env dev --source fabric --dry-run
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
+jobs:
+  validate:
+    name: Validate scripts and item definitions
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-# Deploy to the development workspace automatically on main.
-deploy:dev:
-  stage: deploy_dev
-  environment:
-    name: dev
-  script:
-    - bash scripts/import_workspace.sh --env dev --source fabric
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+      - name: Install validation tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq shellcheck
 
-# Promote to test after a manual approval.
-deploy:test:
-  stage: deploy_test
-  environment:
-    name: test
-  script:
-    - bash scripts/import_workspace.sh --env test --source fabric
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
-  allow_failure: false
+      - name: Run ShellCheck
+        run: shellcheck scripts/*.sh scripts/lib/*.sh
 
-# Promote to production after a manual approval. Protect this environment.
-deploy:prod:
-  stage: deploy_prod
-  environment:
-    name: prod
-  script:
-    - bash scripts/import_workspace.sh --env prod --source fabric
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
-  allow_failure: false
+      - name: Validate import payload
+        run: bash scripts/import_workspace.sh --env dev --source fabric --dry-run
+
+  deploy-dev:
+    name: Deploy to development
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-24.04
+    environment:
+      name: dev
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install runtime tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ca-certificates curl jq
+
+      - name: Import item definitions
+        run: bash scripts/import_workspace.sh --env dev --source fabric
+        env:
+          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
+
+  deploy-test:
+    name: Deploy to test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: deploy-dev
+    runs-on: ubuntu-24.04
+    environment:
+      name: test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install runtime tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ca-certificates curl jq
+
+      - name: Import item definitions
+        run: bash scripts/import_workspace.sh --env test --source fabric
+        env:
+          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
+
+  deploy-prod:
+    name: Deploy to production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: deploy-test
+    runs-on: ubuntu-24.04
+    environment:
+      name: prod
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install runtime tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ca-certificates curl jq
+
+      - name: Import item definitions
+        run: bash scripts/import_workspace.sh --env prod --source fabric
+        env:
+          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
