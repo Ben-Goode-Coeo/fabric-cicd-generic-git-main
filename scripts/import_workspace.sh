@@ -121,6 +121,8 @@ main() {
   log_info "Workspace ID: ${ws_id}"
 
   log_info "Importing item definitions"
+  log_info "ws_id = ${ws_id}"
+  log_info "request_body = ${request_body}"
   local result
   result="$(fabric::bulk_import "$ws_id" "$request_body")"
 
