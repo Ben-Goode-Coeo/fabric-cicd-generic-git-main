@@ -54,50 +54,50 @@ jobs:
           FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
           FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
 
-  deploy-test:
-    name: Deploy to test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: deploy-dev
-    runs-on: ubuntu-24.04
-    environment:
-      name: test
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install runtime tools
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ca-certificates curl jq
-
-      - name: Import item definitions
-        run: bash scripts/import_workspace.sh --env test --source fabric
-        env:
-          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
-          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
-          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
-          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
-
-  deploy-prod:
-    name: Deploy to production
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: deploy-test
-    runs-on: ubuntu-24.04
-    environment:
-      name: prod
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install runtime tools
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ca-certificates curl jq
-
-      - name: Import item definitions
-        run: bash scripts/import_workspace.sh --env prod --source fabric
-        env:
-          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
-          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
-          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
-          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
+  ##deploy-test:
+  #  name: Deploy to test
+  #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #  needs: deploy-dev
+  #  runs-on: ubuntu-24.04
+  #  environment:
+  #    name: test
+  #  steps:
+  #    - name: Check out repository
+  #      uses: actions/checkout@v4
+#
+  #    - name: Install runtime tools
+  #      run: |
+  #        sudo apt-get update -qq
+  #        sudo apt-get install -y -qq ca-certificates curl jq
+#
+  #    - name: Import item definitions
+  #      run: bash scripts/import_workspace.sh --env test --source fabric
+  #      env:
+  #        FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+  #        FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+  #        FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+  #        FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
+#
+  #deploy-prod:
+  #  name: Deploy to production
+  #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #  needs: deploy-test
+  #  runs-on: ubuntu-24.04
+  #  environment:
+  #    name: prod
+  #  steps:
+  #    - name: Check out repository
+  #      uses: actions/checkout@v4
+#
+  #    - name: Install runtime tools
+  #      run: |
+  #        sudo apt-get update -qq
+  #        sudo apt-get install -y -qq ca-certificates curl jq
+#
+  #    - name: Import item definitions
+  #      run: bash scripts/import_workspace.sh --env prod --source fabric
+  #      env:
+  #        FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+  #        FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+  #        FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+  #        FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
