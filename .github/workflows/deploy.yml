@@ -43,6 +43,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ca-certificates curl jq
+          sudo apt-get install -y -qq curl
+          sudo apt-get install -y -qq jq
 
       - name: Import item definitions
         run: bash scripts/import_workspace.sh --env dev --source fabric --dry-run
