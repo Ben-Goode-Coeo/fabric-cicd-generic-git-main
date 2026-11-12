@@ -45,7 +45,7 @@ jobs:
           sudo apt-get install -y -qq ca-certificates curl jq
 
       - name: Import item definitions
-        run: bash scripts/import_workspace.sh --env dev --source fabric
+        run: bash scripts/import_workspace.sh --env dev --source fabric --dry-run
         env:
           FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
           FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
