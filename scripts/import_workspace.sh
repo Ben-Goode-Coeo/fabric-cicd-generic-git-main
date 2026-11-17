@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Import Fabric item definitions from a local folder into a workspace using the
-# Bulk Import Item Definitions API.
+# Import Fabric item definitions from a local folder into a workspace using the Bulk Import Item Definitions API.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
