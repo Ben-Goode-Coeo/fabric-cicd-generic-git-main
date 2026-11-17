@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "Super Important Notebook"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3c8b8db9-373e-9695-47b2-e106915e5896"
+  }
+}

@@ -1,0 +1,4 @@
+# Bash scripts and env files must use LF; CRLF breaks sourcing and value parsing.
+*.sh          text eol=lf
+*.env         text eol=lf
+*.env.example text eol=lf

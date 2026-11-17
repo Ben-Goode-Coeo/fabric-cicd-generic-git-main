@@ -1,0 +1,27 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Validation",
+        "type": "SetVariable",
+        "dependsOn": [],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "Output",
+          "value": {
+            "value": "@concat('Nothing', ' to', ' see', ' here')",
+            "type": "Expression"
+          }
+        }
+      }
+    ],
+    "variables": {
+      "Output": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -92,15 +92,21 @@ main() {
   local count=0
   while IFS= read -r part_b64; do
     local part path payload rel target_dir
-    part="$(base64 -d <<<"$part_b64" 2>/dev/null || base64 -D <<<"$part_b64")"
+    # jq on Windows emits CRLF line endings; strip the trailing \r that
+    # `read` leaves behind, otherwise base64 -d rejects the input.
+    part_b64="${part_b64%$'\r'}"
+    part="$(base64 -d <<<"$part_b64")"
     path="$(jq -r '.path' <<<"$part")"
+    path="${path%$'\r'}"
     payload="$(jq -r '.payload' <<<"$part")"
+    payload="${payload%$'\r'}"
     # Normalize the leading slash from the API path into a relative path.
     rel="${path#/}"
     echo "$rel" >>"$manifest"
     target_dir="${output_dir}/$(dirname "$rel")"
     mkdir -p "$target_dir"
-    base64 -d <<<"$payload" >"${output_dir}/${rel}" 2>/dev/null || base64 -D <<<"$payload" >"${output_dir}/${rel}"
+    base64 -d <<<"$payload" >"${output_dir}/${rel}"
+    log_info "Wrote definition part to ${output_dir}/${rel} (size: $(stat -c%s "${output_dir}/${rel}" 2>/dev/null || stat -f%z "${output_dir}/${rel}"))"
     log_debug "Wrote ${rel}"
     count=$((count + 1))
   done < <(jq -r '.definitionParts[] | @base64' <<<"$result")

@@ -30,6 +30,7 @@ fabric::get_token() {
 
 # Internal: SPN client-credentials token acquisition.
 __fabric_get_token_spn() {
+  log_info "Acquiring token via SPN client-credentials flow (FABRIC_CLIENT_SECRET is set)"
   local authority_host="${FABRIC_AUTHORITY_HOST:-https://login.microsoftonline.com}"
   local scope="https://api.fabric.microsoft.com/.default"
 
@@ -39,8 +40,8 @@ __fabric_get_token_spn() {
 
   local token_url="${authority_host}/${FABRIC_TENANT_ID}/oauth2/v2.0/token"
   log_debug "Requesting token for client $(mask_secret "$FABRIC_CLIENT_ID") from ${token_url}"
-
-  local response token
+  
+  local response token    
   response="$(curl -sS -X POST "$token_url" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=${FABRIC_CLIENT_ID}" \
@@ -62,6 +63,7 @@ __fabric_get_token_spn() {
 
 # Internal: Azure CLI user-token acquisition.
 __fabric_get_token_azcli() {
+  log_info "Acquiring token via Azure CLI (FABRIC_CLIENT_SECRET is NOT set)"
   command -v az >/dev/null 2>&1 || die "Azure CLI (az) is required for user-token auth but not found in PATH"
   : "${FABRIC_TENANT_ID:?FABRIC_TENANT_ID is required for az-cli auth}"
 

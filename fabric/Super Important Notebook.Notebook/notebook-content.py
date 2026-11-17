@@ -6,14 +6,15 @@
 # META   "kernel_info": {
 # META     "name": "synapse_pyspark"
 # META   },
-# META   "language_info": {
-# META     "name": "python"
-# META   }
+# META   "dependencies": {}
 # META }
 
 # CELL ********************
 
-print("Hello from the fabric-cicd-generic-git sample notebook.")
+# Welcome to your new notebook
+# Type here in the cell editor to add code!
+
+print("Hello World")
 
 # METADATA ********************
 

@@ -1,0 +1,27 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Set variable1",
+        "type": "SetVariable",
+        "dependsOn": [],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "NewVar",
+          "value": {
+            "value": "@concat('Nothing','To','See','Here')",
+            "type": "Expression"
+          }
+        }
+      }
+    ],
+    "variables": {
+      "NewVar": {
+        "type": "String"
+      }
+    }
+  }
+}
