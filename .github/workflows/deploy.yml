@@ -57,6 +57,16 @@ jobs:
           FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
           FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
 
+      # Import deploys models without data; fill the Display Mode table so the
+      # Mode toggle shows its Light/Dark buttons.
+      - name: Refresh Theme Colours tables
+        run: bash scripts/refresh_theme_tables.sh --env dev --source fabric
+        env:
+          FABRIC_TENANT_ID: ${{ vars.FABRIC_TENANT_ID }}
+          FABRIC_CLIENT_ID: ${{ vars.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_WORKSPACE_NAME: ${{ vars.FABRIC_WORKSPACE_NAME }}
+
   ##deploy-test:
   #  name: Deploy to test
   #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'

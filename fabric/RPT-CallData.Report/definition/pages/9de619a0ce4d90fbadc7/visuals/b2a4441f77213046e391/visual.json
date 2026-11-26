@@ -3,9 +3,9 @@
   "name": "b2a4441f77213046e391",
   "position": {
     "x": 10.784593437945793,
-    "y": 129.4151212553495,
-    "z": 0,
-    "height": 611.64051355206857,
+    "y": 0,
+    "z": 1000,
+    "height": 741.05563480741807,
     "width": 779.57203994293877,
     "tabOrder": 0
   },
@@ -120,37 +120,6 @@
                 }
               }
             }
-          }
-        }
-      ],
-      "labels": [
-        {
-          "properties": {
-            "color": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Measure": {
-                      "Expression": {
-                        "SourceRef": {
-                          "Entity": "Theme Colours"
-                        }
-                      },
-                      "Property": "Colour Text"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "selector": {
-            "data": [
-              {
-                "dataViewWildcard": {
-                  "matchingOption": 1
-                }
-              }
-            ]
           }
         }
       ]

@@ -19,12 +19,15 @@ source "${__AUTH_DIR}/log.sh"
 # Mode is auto-detected:
 #   - If FABRIC_CLIENT_SECRET is set: uses SPN client-credentials flow via curl.
 #   - Otherwise: uses `az account get-access-token` (requires prior `az login`).
+# Args: [resource] API to request a token for (default: the Fabric API).
+#   Pass https://analysis.windows.net/powerbi/api for the Power BI REST API.
 # Echoes the access token to stdout.
 fabric::get_token() {
+  local resource="${1:-https://api.fabric.microsoft.com}"
   if [[ -n "${FABRIC_CLIENT_SECRET:-}" ]]; then
-    __fabric_get_token_spn
+    __fabric_get_token_spn "$resource"
   else
-    __fabric_get_token_azcli
+    __fabric_get_token_azcli "$resource"
   fi
 }
 
@@ -32,7 +35,7 @@ fabric::get_token() {
 __fabric_get_token_spn() {
   log_info "Acquiring token via SPN client-credentials flow (FABRIC_CLIENT_SECRET is set)"
   local authority_host="${FABRIC_AUTHORITY_HOST:-https://login.microsoftonline.com}"
-  local scope="https://api.fabric.microsoft.com/.default"
+  local scope="${1%/}/.default"
 
   : "${FABRIC_TENANT_ID:?FABRIC_TENANT_ID is required}"
   : "${FABRIC_CLIENT_ID:?FABRIC_CLIENT_ID is required for SPN auth}"
@@ -67,11 +70,12 @@ __fabric_get_token_azcli() {
   command -v az >/dev/null 2>&1 || die "Azure CLI (az) is required for user-token auth but not found in PATH"
   : "${FABRIC_TENANT_ID:?FABRIC_TENANT_ID is required for az-cli auth}"
 
-  log_debug "Requesting token via Azure CLI for resource https://api.fabric.microsoft.com"
+  local resource="$1"
+  log_debug "Requesting token via Azure CLI for resource ${resource}"
 
   local token
   token="$(az account get-access-token \
-    --resource "https://api.fabric.microsoft.com" \
+    --resource "${resource}" \
     --tenant "${FABRIC_TENANT_ID}" \
     --query "accessToken" \
     -o tsv 2>/dev/null | tr -d '\r')" \

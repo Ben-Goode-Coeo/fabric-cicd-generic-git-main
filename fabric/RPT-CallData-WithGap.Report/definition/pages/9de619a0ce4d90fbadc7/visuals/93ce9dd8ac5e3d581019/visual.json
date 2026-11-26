@@ -10,7 +10,7 @@
     "tabOrder": 1
   },
   "visual": {
-    "visualType": "columnChart",
+    "visualType": "barChart",
     "query": {
       "queryState": {
         "Category": {
@@ -248,7 +248,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "7b980c9e44decd67195c",
+        "name": "7d8b211446c034555af8",
         "field": {
           "Column": {
             "Expression": {
@@ -262,7 +262,7 @@
         "type": "Categorical"
       },
       {
-        "name": "676f4a4817c431d02d29",
+        "name": "3320222a35338402ad26",
         "field": {
           "Aggregation": {
             "Expression": {
@@ -281,7 +281,7 @@
         "type": "Advanced"
       },
       {
-        "name": "30e5e498131d3141a7e0",
+        "name": "5b14e4ac62d4800ebd8a",
         "field": {
           "Column": {
             "Expression": {

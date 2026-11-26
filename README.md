@@ -280,6 +280,16 @@ For each report other than the template, the script:
 
 The script doesn't change colours that are already bound to a measure, rule or gradient. It replaces hard-coded hex colours unless you pass `--keep-literals`. It skips shapes, images, text boxes and buttons, and it doesn't change page backgrounds. It also skips reports bound to a semantic model outside this repo (`byConnection`), because it can't add the tables to that model. Running it twice changes nothing the second time. With `--check`, it lists the files that need updating and exits non-zero without writing anything.
 
+### refresh_theme_tables.sh
+
+```text
+scripts/refresh_theme_tables.sh --env <name> [--source <dir>] [--dry-run]
+```
+
+Bulk import deploys a semantic model's definition but not its data. Until the `Display Mode` table is refreshed it has no rows, so the Mode toggle shows no Light/Dark buttons. CI runs this script after each import to fix that.
+
+The script finds every local semantic model with a `Display Mode` table and matches it to the deployed model by display name. It then starts an enhanced refresh of only the `Display Mode` and `Theme Colours` tables, so the model's other data isn't reloaded, and waits for each refresh to finish. It uses the Power BI REST API with the same identity as the other scripts. That identity needs Contributor (or higher) on the workspace, and the tenant must allow service principals to use Power BI APIs. `--dry-run` lists the models it would refresh, without signing in.
+
 ## Known limitations
 
 * Service principal support depends on item type. The export and import operations succeed only when every item involved supports service principal operations.

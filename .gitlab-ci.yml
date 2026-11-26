@@ -43,6 +43,7 @@ deploy:dev:
   script:
     - bash scripts/apply_theme_colours.sh --source fabric
     - bash scripts/import_workspace.sh --env dev --source fabric
+    - bash scripts/refresh_theme_tables.sh --env dev --source fabric
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
@@ -54,6 +55,7 @@ deploy:test:
   script:
     - bash scripts/apply_theme_colours.sh --source fabric
     - bash scripts/import_workspace.sh --env test --source fabric
+    - bash scripts/refresh_theme_tables.sh --env test --source fabric
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
@@ -67,6 +69,7 @@ deploy:prod:
   script:
     - bash scripts/apply_theme_colours.sh --source fabric
     - bash scripts/import_workspace.sh --env prod --source fabric
+    - bash scripts/refresh_theme_tables.sh --env prod --source fabric
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
