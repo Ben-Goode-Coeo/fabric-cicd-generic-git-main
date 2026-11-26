@@ -65,7 +65,10 @@ def skipped_types: ["shape", "basicShape", "image", "textbox", "actionButton", "
 
 def projections($role): [.visual.query.queryState[$role].projections[]?];
 
-if .visual == null or (.visual.visualType as $t | skipped_types | index($t)) then .
+# The Mode toggle (anything slicing on 'Display Mode') is styled by design.
+def is_mode_toggle: [.visual.query.queryState[]?.projections[]?.field.Column.Expression.SourceRef.Entity] | index("Display Mode");
+
+if .visual == null or (.visual.visualType as $t | skipped_types | index($t)) or is_mode_toggle then .
 else
   .visual.visualType as $type
 

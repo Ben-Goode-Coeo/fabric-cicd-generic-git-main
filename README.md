@@ -258,16 +258,17 @@ Creates the target workspace and assigns it to the configured capacity. If the w
 ### apply_theme_colours.sh
 
 ```text
-scripts/apply_theme_colours.sh [--source <dir>] [--template <name>] [--report <name>]... [--keep-literals] [--check]
+scripts/apply_theme_colours.sh [--source <dir>] [--template <name>] [--report <name>]... [--keep-literals] [--no-toggle] [--check]
 ```
 
-Gives every report the light/dark conditional formatting from the template report (default `BT Theme Demo`). CI runs it before each import, so a new report picks up the formatting when it's deployed. Run it locally and commit the result to keep the repo in step with what's deployed.
+Gives every report the light/dark conditional formatting and Mode toggle from the template report (default `BT Theme Demo`). CI runs it before each import, so a new report picks up the formatting when it's deployed. Run it locally and commit the result to keep the repo in step with what's deployed.
 
 For each report other than the template, the script:
 
 1. Copies the `Theme Colours` and `Display Mode` tables from the template semantic model into the report's semantic model, if they're missing, and adds their `ref table` lines to `model.tmdl`. It leaves out measures that depend on measures that exist only in the template model, such as `Colour Variance`.
 2. Copies the template's custom theme file into the report and registers it in `report.json`, if the report has no custom theme.
-3. Binds visual colours to the `Theme Colours` measures (rules in [scripts/lib/theme_colours.jq](scripts/lib/theme_colours.jq)):
+3. Adds the template's Light/Dark **Mode** toggle to the top-right of every page that doesn't already have one, 32px from the top and right edges. Tooltip pages don't get one. Each copy has new visual and filter IDs but keeps the `DisplayModeSync` sync group, so the mode a reader picks carries across pages. If the toggle lands on top of an existing visual, the script warns so you can move one of them in Power BI. Pass `--no-toggle` to skip this step.
+4. Binds visual colours to the `Theme Colours` measures (rules in [scripts/lib/theme_colours.jq](scripts/lib/theme_colours.jq)):
 
 | Visual | Property | Measure |
 |--------|----------|---------|

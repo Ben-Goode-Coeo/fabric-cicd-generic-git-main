@@ -20,7 +20,10 @@ For each report (other than the template) the script:
      Measures that depend on template-only measures are left out.
   2. Copies the template's custom theme (fonts, palette) into the report,
      if the report has no custom theme.
-  3. Binds visual colours (background, border, title, axis labels, data
+  3. Adds the template's Light/Dark "Mode" toggle to the top-right of every
+     page that lacks one (tooltip pages excepted). The copies share the
+     template's sync group, so the choice carries across pages.
+  4. Binds visual colours (background, border, title, axis labels, data
      labels, card text, table cells) to the Theme Colours measures.
 
 Colours that are already bound to a measure, rule or gradient are left alone.
@@ -36,6 +39,7 @@ Options:
                       (default: "BT Theme Demo").
   --report <name>     Only process this report (repeatable). Default: all.
   --keep-literals     Do not replace hard-coded hex colours.
+  --no-toggle         Do not add the Mode toggle to pages.
   --check             Change nothing; exit 1 if any report needs updating.
   -h, --help          Show this help.
 EOF
@@ -194,6 +198,79 @@ sync_theme() {
   ' "$report_json" | write_if_changed "$report_json" json
 }
 
+# 20 random hex characters, the ID format Power BI uses for visuals and filters.
+new_id() { od -An -tx1 -N10 /dev/urandom | tr -d ' \n'; }
+
+# Echo the path of the template's Mode toggle: the visual that slices on
+# 'Display Mode'[Mode].
+find_template_toggle() {
+  local template_report="$1" visual
+  while IFS= read -r -d '' visual; do
+    if jq -e '[.visual.query.queryState[]?.projections[]?.field.Column
+               | select(.Expression.SourceRef.Entity == "Display Mode" and .Property == "Mode")] | length > 0' \
+         "$visual" >/dev/null; then
+      echo "$visual"; return 0
+    fi
+  done < <(find "${template_report}/definition/pages" -name visual.json -print0 | sort -z)
+  return 1
+}
+
+# Add the Mode toggle to the top-right of every page that lacks one.
+# Args: <report_dir> <template_toggle_visual_json>
+add_toggle() {
+  local report_dir="$1" toggle="$2"
+  local page_dir page_json visuals_dir id existing
+  [[ -z "$toggle" ]] && return 0
+  local tw th
+  tw="$(jq '.position.width' "$toggle")"
+  th="$(jq '.position.height' "$toggle")"
+
+  for page_dir in "${report_dir}"/definition/pages/*/; do
+    page_dir="${page_dir%/}"
+    page_json="${page_dir}/page.json"
+    [[ -f "$page_json" ]] || continue
+    # Tooltip pages are too small for a toggle and are never navigated to.
+    if jq -e '.type == "Tooltip" or .pageBinding.type == "Tooltip"' "$page_json" >/dev/null; then
+      continue
+    fi
+    visuals_dir="${page_dir}/visuals"
+    existing="$(find "$visuals_dir" -name visual.json -exec \
+      jq -r 'select([.. | .Entity? // empty] | index("Display Mode")) | input_filename' {} + 2>/dev/null | head -1)"
+    [[ -n "$existing" ]] && continue
+
+    local pw x y=32 z
+    pw="$(jq '.width // 1280' "$page_json")"
+    x="$(jq -n --argjson pw "$pw" --argjson tw "$tw" '$pw - $tw - 32')"
+    z="$(find "$visuals_dir" -name visual.json -exec jq '.position.z // 0' {} + 2>/dev/null \
+         | tr -d '\r' | sort -n | tail -1)"
+    z=$(( ${z:-0} + 1 ))
+
+    # Warn when the toggle will sit on top of an existing visual.
+    local overlaps
+    overlaps="$(find "$visuals_dir" -name visual.json -exec jq -r \
+      --argjson x "$x" --argjson y "$y" --argjson w "$tw" --argjson h "$th" '
+        select(.parentGroupName == null and .position != null)
+        | .position as $p
+        | select($p.x < $x + $w and $x < $p.x + $p.width and $p.y < $y + $h and $y < $p.y + $p.height)
+        | select((.visual.visualType // "") | test("^(basicShape|shape)$") | not)
+        | .visual.visualType // "group"' {} + 2>/dev/null | tr -d '\r' | sort -u | paste -sd, -)"
+
+    id="$(new_id)"
+    jq --arg id "$id" --arg fid "$(new_id)" --argjson x "$x" --argjson y "$y" --argjson z "$z" '
+      .name = $id
+      | .position.x = $x | .position.y = $y | .position.z = $z | .position.tabOrder = $z
+      | del(.parentGroupName)
+      | if .filterConfig.filters then .filterConfig.filters |= map(.name = $fid) else . end
+    ' "$toggle" | write_if_changed "${visuals_dir}/${id}/visual.json" json
+    local page_name verb="Added"
+    page_name="$(jq -r '.displayName' "$page_json" | tr -d '\r')"
+    [[ "$CHECK" == "true" ]] && verb="Would add"
+    log_info "  ${verb} Mode toggle to page '${page_name}'"
+    [[ -n "$overlaps" ]] && log_warn "  The toggle would overlap: ${overlaps}. Move it in Power BI if needed."
+  done
+  return 0
+}
+
 # Bind every visual in the report to the Theme Colours measures.
 # Args: <report_dir> <colours_json>
 sync_visuals() {
@@ -206,15 +283,16 @@ sync_visuals() {
 }
 
 main() {
-  local source_dir="" template="BT Theme Demo" keep_literals="false"
+  local source_dir="" template="BT Theme Demo" keep_literals="false" add_toggle="true"
   local -a only_reports=()
-
+  
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --source) source_dir="${2:-}"; shift 2 ;;
       --template) template="${2:-}"; shift 2 ;;
       --report) only_reports+=("${2:-}"); shift 2 ;;
       --keep-literals) keep_literals="true"; shift ;;
+      --no-toggle) add_toggle="false"; shift ;;
       --check) CHECK="true"; shift ;;
       -h|--help) usage; exit 0 ;;
       *) die "Unknown argument: $1" ;;
@@ -235,6 +313,12 @@ main() {
   colours="$(read_colours "$template_tmdl")"
   [[ "$(jq 'length' <<<"$colours")" -gt 0 ]] || die "No colour measures found in ${template_tmdl}"
   log_info "Loaded $(jq 'length' <<<"$colours") colour measures from '${template}'"
+
+  local toggle=""
+  if [[ "$add_toggle" == "true" ]]; then
+    toggle="$(find_template_toggle "$template_report")" \
+      || log_warn "Template has no visual slicing on 'Display Mode'[Mode]; no toggle will be added"
+  fi
 
   local report_dir name pbir model_path model_dir processed=0
   for report_dir in "${source_dir}"/*.Report; do
@@ -257,6 +341,7 @@ main() {
 
     sync_model "$model_dir" "$template_model" || continue
     sync_theme "$report_dir" "$template_report"
+    add_toggle "$report_dir" "$toggle"
     sync_visuals "$report_dir" "$colours" "$keep_literals"
     processed=$((processed + 1))
   done
