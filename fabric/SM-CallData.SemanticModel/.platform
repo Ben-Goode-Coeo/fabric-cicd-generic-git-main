@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "SM-CallData"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c83c73b0-345a-9e25-48c7-032d555e87e4"
+  }
+}

@@ -1,0 +1,29 @@
+/// Disconnected utility table driving the light/dark toggle. Not related to any other table by design.
+table 'Display Mode'
+	lineageTag: 01732d67-7bd6-4b8a-9cbf-74870251a366
+
+	column Mode
+		dataType: string
+		lineageTag: c922c4fd-5b85-4035-9cda-e9470603c6f2
+		summarizeBy: none
+		sourceColumn: Mode
+		sortByColumn: 'Mode Sort'
+
+	column 'Mode Sort'
+		dataType: int64
+		isHidden
+		lineageTag: fec69d7a-ba21-4142-946c-d28dbb7e7765
+		summarizeBy: none
+		sourceColumn: Mode Sort
+
+	partition 'Display Mode' = m
+		mode: import
+		source =
+				let
+				    Source = #table(
+				        type table [Mode = text, #"Mode Sort" = Int64.Type],
+				        {{"Light", 1}, {"Dark", 2}}
+				    )
+				in
+				    Source
+

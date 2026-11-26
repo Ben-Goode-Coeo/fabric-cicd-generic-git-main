@@ -1,0 +1,93 @@
+table callsfromnotebook
+	lineageTag: 7b03e62d-5dc0-4464-91ec-380f76c996b2
+	sourceLineageTag: [dbo].[callsfromnotebook]
+
+	column CallType
+		dataType: string
+		lineageTag: 3d47dd1f-1cc6-40d0-bbd0-b18f739de09d
+		sourceLineageTag: CallType
+		summarizeBy: none
+		sourceColumn: CallType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceLine
+		dataType: string
+		lineageTag: aa60c79f-b142-4f3e-8177-bffed03e27dc
+		sourceLineageTag: ServiceLine
+		summarizeBy: none
+		sourceColumn: ServiceLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column Handler
+		dataType: string
+		lineageTag: 6ccd037c-16af-4b18-8668-a0049bc7cdea
+		sourceLineageTag: Handler
+		summarizeBy: none
+		sourceColumn: Handler
+
+		annotation SummarizationSetBy = Automatic
+
+	column TimeOnCall_minutes
+		dataType: double
+		lineageTag: 534464fb-3be2-43b4-8ad4-a9bbd71f6b2d
+		sourceLineageTag: TimeOnCall_minutes
+		summarizeBy: none
+		sourceColumn: TimeOnCall_minutes
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Satisfaction
+		dataType: int64
+		formatString: 0
+		lineageTag: bebd0b11-f103-42c9-afbf-46e4d1e769c7
+		sourceLineageTag: Satisfaction
+		summarizeBy: none
+		sourceColumn: Satisfaction
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+	column CallerID
+		dataType: string
+		lineageTag: da2ae954-66ff-47f6-bc13-1be52f915db7
+		sourceLineageTag: CallerID
+		summarizeBy: none
+		sourceColumn: CallerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CallStarted
+		dataType: string
+		lineageTag: 76d56b29-0778-47ff-9e7f-5e543c70092d
+		sourceLineageTag: CallStarted
+		summarizeBy: none
+		sourceColumn: CallStarted
+
+		annotation SummarizationSetBy = Automatic
+
+	column DemoColumn =
+			(
+			    IF(callsfromnotebook[Satisfaction] > 3,"Excellent")
+			)
+		lineageTag: 263535fd-8c4d-4219-b536-a1ba24b6e64d
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition callsfromnotebook = entity
+		mode: directLake
+		source
+			entityName: callsfromnotebook
+			schemaName: dbo
+			expressionSource: 'DirectLake - Lakehouse_Sketch'
+

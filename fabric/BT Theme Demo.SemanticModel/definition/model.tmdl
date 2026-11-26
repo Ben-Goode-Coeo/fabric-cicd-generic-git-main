@@ -1,0 +1,20 @@
+model 'BT Theme Demo'
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","DevMode"]
+
+annotation PBI_QueryOrder = ["Dummy Data - Product","Dummy Data - Channel","Dummy Data - Region","Dummy Data - Date","Dummy Data - Measures","Display Mode","Theme Colours"]
+
+ref table 'Dummy Data - Product'
+ref table 'Dummy Data - Channel'
+ref table 'Dummy Data - Region'
+ref table 'Dummy Data - Date'
+ref table 'Dummy Data - Measures'
+ref table 'Display Mode'
+ref table 'Theme Colours'
+

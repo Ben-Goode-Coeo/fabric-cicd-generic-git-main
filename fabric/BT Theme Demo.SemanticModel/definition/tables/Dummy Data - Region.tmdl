@@ -1,0 +1,23 @@
+/// UK sales regions (synthetic). One row per region.
+table 'Dummy Data - Region'
+	lineageTag: 446e4e60-643c-4aaa-86d4-8d6518af362f
+
+	column Region
+		dataType: string
+		lineageTag: 6ae05339-92e7-4623-8e57-d017d9471320
+		summarizeBy: none
+		sourceColumn: Region
+
+	partition 'Dummy Data - Region' = m
+		mode: import
+		source =
+				let
+				    Source = #table(
+				        type table [Region = text],
+				        {{"London"}, {"South East"}, {"Midlands"}, {"North West"}, {"Scotland"}, {"Wales"}}
+				    )
+				in
+				    Source
+
+	changedProperty = Name
+

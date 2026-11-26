@@ -1,0 +1,279 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "b2a4441f77213046e391",
+  "position": {
+    "x": 10.426687354538402,
+    "y": 0,
+    "z": 0,
+    "height": 741.78432893716058,
+    "width": 780.512024825446,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "callsfromnotebook"
+                    }
+                  },
+                  "Property": "Handler"
+                }
+              },
+              "queryRef": "callsfromnotebook.Handler",
+              "nativeQueryRef": "Handler"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "callsfromnotebook"
+                        }
+                      },
+                      "Property": "CallStarted"
+                    }
+                  },
+                  "Function": 5
+                }
+              },
+              "queryRef": "callsfromnotebook.CallStarted",
+              "nativeQueryRef": "Count of CallStarted",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "callsfromnotebook"
+                    }
+                  },
+                  "Property": "Satisfaction"
+                }
+              },
+              "queryRef": "callsfromnotebook.Satisfaction",
+              "nativeQueryRef": "Satisfaction"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Surface"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Border"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Text"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "categoryAxis": [
+        {
+          "properties": {
+            "labelColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Muted Text"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "valueAxis": [
+        {
+          "properties": {
+            "labelColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Muted Text"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Theme Colours"
+                        }
+                      },
+                      "Property": "Colour Text"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1d04008f3f88dd264554",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "callsfromnotebook"
+              }
+            },
+            "Property": "Satisfaction"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "65620cdf7271bcef16f1",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "callsfromnotebook"
+                  }
+                },
+                "Property": "CallStarted"
+              }
+            },
+            "Function": 5
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "1c76506bbd8d3b23fc63",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "callsfromnotebook"
+              }
+            },
+            "Property": "Handler"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

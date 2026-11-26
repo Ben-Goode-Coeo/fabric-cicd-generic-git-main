@@ -1,0 +1,100 @@
+/// Utility measure table. Each measure returns a hex colour for the selected Display Mode, generated from design-system.json. Used by field-value conditional formatting.
+table 'Theme Colours'
+	lineageTag: 9185a517-5e51-48a1-8006-a6d69ed110e5
+
+	/// The display mode chosen in the toggle; defaults to Light when nothing is selected.
+	measure 'Display Mode Selected' = SELECTEDVALUE ( 'Display Mode'[Mode], "Light" )
+		displayFolder: Mode
+		lineageTag: b681ac18-378f-4a1a-bb55-8285e7e17657
+
+	/// Hex colour for background in the selected display mode (from design-system.json).
+	measure 'Colour Background' = IF ( [Display Mode Selected] = "Dark", "#120A1F", "#F7F7F7" )
+		displayFolder: Colours
+		lineageTag: fef8c9a7-ddb6-4e03-890a-d5bfbf7f8e1b
+
+	/// Hex colour for surface in the selected display mode (from design-system.json).
+	measure 'Colour Surface' = IF ( [Display Mode Selected] = "Dark", "#1D1430", "#FFFFFF" )
+		displayFolder: Colours
+		lineageTag: 0fc99b7d-e65d-45ea-b9c8-575a838b454a
+
+	/// Hex colour for surface alt in the selected display mode (from design-system.json).
+	measure 'Colour Surface Alt' = IF ( [Display Mode Selected] = "Dark", "#271C3E", "#F0F0F0" )
+		displayFolder: Colours
+		lineageTag: eb650509-ed2c-423a-8142-f69503cbea4f
+
+	/// Hex colour for header band in the selected display mode (from design-system.json).
+	measure 'Colour Header Band' = IF ( [Display Mode Selected] = "Dark", "#32008A", "#5514B4" )
+		displayFolder: Colours
+		lineageTag: 504d7c09-0ae6-4fa0-aa72-7b9eb96f175a
+
+	/// Hex colour for text in the selected display mode (from design-system.json).
+	measure 'Colour Text' = IF ( [Display Mode Selected] = "Dark", "#F7F7F7", "#2A2A2A" )
+		displayFolder: Colours
+		lineageTag: b104ea40-bb0a-4f72-ad90-51c32a3bd830
+
+	/// Hex colour for muted text in the selected display mode (from design-system.json).
+	measure 'Colour Muted Text' = IF ( [Display Mode Selected] = "Dark", "#B7B7B7", "#6B6B6B" )
+		displayFolder: Colours
+		lineageTag: e40bd041-58ea-4c34-8bb8-d9304bbc6120
+
+	/// Hex colour for border in the selected display mode (from design-system.json).
+	measure 'Colour Border' = IF ( [Display Mode Selected] = "Dark", "#3A2D55", "#E3E3E3" )
+		displayFolder: Colours
+		lineageTag: 7288c293-e703-4007-a1bc-e4e85a7b14a9
+
+	/// Hex colour for gridline in the selected display mode (from design-system.json).
+	measure 'Colour Gridline' = IF ( [Display Mode Selected] = "Dark", "#33284A", "#E3E3E3" )
+		displayFolder: Colours
+		lineageTag: 999549d6-b9b7-4770-809d-119beac47234
+
+	/// Hex colour for brand in the selected display mode (from design-system.json).
+	measure 'Colour Brand' = IF ( [Display Mode Selected] = "Dark", "#B592E1", "#5514B4" )
+		displayFolder: Colours
+		lineageTag: 52a251e3-6d22-4eb3-ae99-31116a9df12d
+
+	/// Hex colour for accent in the selected display mode (from design-system.json).
+	measure 'Colour Accent' = IF ( [Display Mode Selected] = "Dark", "#FF80FF", "#DC00E0" )
+		displayFolder: Colours
+		lineageTag: 9f5ae263-bfc6-43ff-a272-4a90115fd2b1
+
+	/// Hex colour for positive in the selected display mode (from design-system.json).
+	measure 'Colour Positive' = IF ( [Display Mode Selected] = "Dark", "#56B54B", "#1B8811" )
+		displayFolder: Colours
+		lineageTag: 95099656-0760-4a94-a114-8c2359043335
+
+	/// Hex colour for negative in the selected display mode (from design-system.json).
+	measure 'Colour Negative' = IF ( [Display Mode Selected] = "Dark", "#F63A38", "#DA020F" )
+		displayFolder: Colours
+		lineageTag: af7d1061-0076-45ed-b415-9687218b12de
+
+	/// Hex colour for warning in the selected display mode (from design-system.json).
+	measure 'Colour Warning' = IF ( [Display Mode Selected] = "Dark", "#FFC501", "#B14D00" )
+		displayFolder: Colours
+		lineageTag: 6fd1f9ff-3509-4fbe-9bb6-2df98b48b360
+
+	/// Hex colour for neutral in the selected display mode (from design-system.json).
+	measure 'Colour Neutral' = IF ( [Display Mode Selected] = "Dark", "#AAAAAA", "#6B6B6B" )
+		displayFolder: Colours
+		lineageTag: f30f163b-5ddd-4752-9b6b-69db7e8f4074
+
+	/// 1 when Dark mode is selected, otherwise 0. Drives rule-based colours on visuals that do not accept a colour measure (for example card font colours).
+	measure 'Display Mode Index' = IF ( [Display Mode Selected] = "Dark", 1, 0 )
+		formatString: 0
+		displayFolder: Mode
+		lineageTag: 7f5a6a17-4778-4d33-b19a-2036a91736ac
+
+	column Placeholder
+		dataType: string
+		isHidden
+		lineageTag: a1b14aa9-b078-4171-a81e-197f322a1137
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+	partition 'Theme Colours' = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Placeholder = text], {})
+				in
+				    Source
+

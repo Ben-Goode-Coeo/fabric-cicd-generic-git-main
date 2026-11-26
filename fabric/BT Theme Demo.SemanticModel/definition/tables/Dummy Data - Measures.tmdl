@@ -1,0 +1,149 @@
+/// Synthetic monthly BT broadband sales. Grain: one row per month, product, channel and region.
+table 'Dummy Data - Measures'
+	lineageTag: 84a9361c-2ae3-4131-b698-9cb712f68f70
+
+	/// Number of new broadband connections.
+	measure 'New Connections' = SUM ( 'Dummy Data - Measures'[Connections] )
+		formatString: #,##0
+		displayFolder: Volume
+		lineageTag: e1c2cf1a-f6cd-4775-b157-72164542345d
+
+	/// Planned number of new connections.
+	measure 'Target Connections' = SUM ( 'Dummy Data - Measures'[Target Connections Amount] )
+		formatString: #,##0
+		displayFolder: Volume
+		lineageTag: d3dc9fb0-6fc1-4866-b15d-406eb50da06c
+
+	/// New Connections minus Target Connections.
+	measure 'Variance vs Target' = [New Connections] - [Target Connections]
+		formatString: +#,##0;-#,##0;0
+		displayFolder: Volume
+		lineageTag: 3cd3fd86-93bb-425b-b827-2a1ea36a3d98
+
+	/// Variance vs Target as a share of Target Connections.
+	measure 'Variance vs Target %' = DIVIDE ( [Variance vs Target], [Target Connections] )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Volume
+		lineageTag: f1062090-4c12-4891-bcb5-7980b010d79d
+
+	/// First-month revenue from new connections (GBP).
+	measure Revenue = SUM ( 'Dummy Data - Measures'[Revenue Amount] )
+		formatString: £#,##0
+		displayFolder: Value
+		lineageTag: 4d233dd1-ca61-49e0-837f-88a995e8d264
+
+	/// Average revenue per user: Revenue divided by New Connections.
+	measure ARPU = DIVIDE ( [Revenue], [New Connections] )
+		formatString: £#,##0.00
+		displayFolder: Value
+		lineageTag: 5c4753c6-2a27-4c34-8573-261d3e82dd4e
+
+	/// Churned customers as a share of New Connections.
+	measure 'Churn %' = DIVIDE ( SUM ( 'Dummy Data - Measures'[Churned] ), [New Connections] )
+		formatString: 0.0%
+		displayFolder: Value
+		lineageTag: 9e0d9907-2479-42d4-b114-bac0b3e60a35
+
+	column Month
+		dataType: dateTime
+		isHidden
+		formatString: mmm yyyy
+		lineageTag: c6c81f95-6aaf-40a8-ad34-1b5b95f8897c
+		summarizeBy: none
+		sourceColumn: Month
+
+	column Product
+		dataType: string
+		isHidden
+		lineageTag: b77b71f2-9348-495e-8256-8a053610868c
+		summarizeBy: none
+		sourceColumn: Product
+
+	column Channel
+		dataType: string
+		isHidden
+		lineageTag: 85c3e0e0-9b57-4c0a-9a2c-40bfae41a96d
+		summarizeBy: none
+		sourceColumn: Channel
+
+	column Region
+		dataType: string
+		isHidden
+		lineageTag: 99b1127c-86d8-47f7-bb57-3c414f19f1b1
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Connections
+		dataType: int64
+		isHidden
+		lineageTag: f3b61c85-da69-4162-8cf9-a0bc25c50a56
+		summarizeBy: sum
+		sourceColumn: Connections
+
+	column 'Revenue Amount'
+		dataType: decimal
+		isHidden
+		lineageTag: a4a67b45-67ef-49d4-a54f-69a214a6cc6f
+		summarizeBy: sum
+		sourceColumn: Revenue
+
+	column 'Target Connections Amount'
+		dataType: int64
+		isHidden
+		lineageTag: 0a741fe9-5583-491d-ba82-17aa036d797f
+		summarizeBy: sum
+		sourceColumn: Target Connections
+
+	column Churned
+		dataType: int64
+		isHidden
+		lineageTag: 744d19cc-6c89-4cb1-8a04-2a304c42fafe
+		summarizeBy: sum
+		sourceColumn: Churned
+
+	partition 'Dummy Data - Measures' = m
+		mode: import
+		source =
+				let
+				    Months = List.Transform({0..21}, each Date.AddMonths(#date(2025, 1, 1), _)),
+				    Products = {
+				        [P = "Full Fibre 100", Price = 30, Base = 420, Growth = -0.015],
+				        [P = "Full Fibre 500", Price = 40, Base = 520, Growth = 0.005],
+				        [P = "Full Fibre 900", Price = 50, Base = 480, Growth = 0.035],
+				        [P = "Full Fibre 2 Gig", Price = 75, Base = 120, Growth = 0.03]
+				    },
+				    Channels = {
+				        [C = "Online", Share = 0.42, Vs = 1.04],
+				        [C = "Affiliate", Share = 0.24, Vs = 1.12],
+				        [C = "Retail", Share = 0.20, Vs = 0.94],
+				        [C = "Telesales", Share = 0.14, Vs = 0.91]
+				    },
+				    Regions = {
+				        [R = "London", Share = 0.22], [R = "South East", Share = 0.19], [R = "Midlands", Share = 0.17],
+				        [R = "North West", Share = 0.16], [R = "Scotland", Share = 0.14], [R = "Wales", Share = 0.12]
+				    },
+				    Rows = List.Combine(List.Transform({0..21}, (mi) =>
+				        List.Combine(List.Transform(Products, (p) =>
+				            List.Combine(List.Transform(Channels, (c) =>
+				                List.Transform(Regions, (r) =>
+				                    let
+				                        seed = Number.Mod(mi * 7919 + Text.Length(p[P]) * 104729 + Text.Length(c[C]) * 1299709 + Text.Length(r[R]) * 15485863, 1000) / 1000,
+				                        season = 1 + 0.08 * Number.Sin(mi * 0.52),
+				                        conn = Number.Round(p[Base] * Number.Power(1 + p[Growth], mi) * c[Share] * r[Share] * season * (0.9 + 0.2 * seed) * 10, 0),
+				                        target = Number.Round(conn / (c[Vs] * (0.98 + 0.04 * seed)), 0),
+				                        churned = Number.Round(conn * (0.015 + 0.01 * seed), 0)
+				                    in
+				                        {Months{mi}, p[P], c[C], r[R], conn, conn * p[Price], target, churned}
+				                )
+				            ))
+				        ))
+				    )),
+				    Result = #table(
+				        type table [Month = date, Product = text, Channel = text, Region = text, Connections = Int64.Type, Revenue = Currency.Type, #"Target Connections" = Int64.Type, Churned = Int64.Type],
+				        Rows
+				    )
+				in
+				    Result
+
+	changedProperty = Name
+

@@ -1,0 +1,47 @@
+/// Monthly calendar, Jan 2025 to Oct 2026. One row per month.
+table 'Dummy Data - Date'
+	lineageTag: 8565b95f-8a41-4ff3-ba03-d08ff277165f
+
+	column Month
+		dataType: dateTime
+		isKey
+		formatString: mmm yyyy
+		lineageTag: 89dc69d3-c1a4-424e-8651-df479d226560
+		summarizeBy: none
+		sourceColumn: Month
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: b0202f1d-e241-4f20-a2eb-1b94fb44ce02
+		summarizeBy: none
+		sourceColumn: Year
+
+	column 'Month Key'
+		dataType: int64
+		isHidden
+		lineageTag: 1587aa5f-a356-4803-9241-175aafe4db64
+		summarizeBy: none
+		sourceColumn: Month Key
+
+	column 'Month Year'
+		dataType: string
+		lineageTag: 08c5189a-4ee2-434b-84d7-953a69805205
+		summarizeBy: none
+		sourceColumn: Month Year
+		sortByColumn: 'Month Key'
+
+	partition 'Dummy Data - Date' = m
+		mode: import
+		source =
+				let
+				    Months = List.Transform({0..21}, each Date.AddMonths(#date(2025, 1, 1), _)),
+				    Source = Table.FromList(Months, Splitter.SplitByNothing(), type table [Month = date]),
+				    AddYear = Table.AddColumn(Source, "Year", each Date.Year([Month]), Int64.Type),
+				    AddKey = Table.AddColumn(AddYear, "Month Key", each Date.Year([Month]) * 100 + Date.Month([Month]), Int64.Type),
+				    AddLabel = Table.AddColumn(AddKey, "Month Year", each Date.ToText([Month], [Format = "MMM yy", Culture = "en-GB"]), type text)
+				in
+				    AddLabel
+
+	changedProperty = Name
+

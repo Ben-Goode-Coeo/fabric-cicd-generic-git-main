@@ -1,0 +1,31 @@
+/// BT broadband products (synthetic). One row per product.
+table 'Dummy Data - Product'
+	lineageTag: 7de3ac40-e91e-4b8d-87da-66343df35bb4
+
+	column Product
+		dataType: string
+		lineageTag: 67e71bb9-f777-4d3b-b9cf-59d3205fcfd2
+		summarizeBy: none
+		sourceColumn: Product
+		sortByColumn: 'Product Sort'
+
+	column 'Product Sort'
+		dataType: int64
+		isHidden
+		lineageTag: 20abb14a-5796-4975-a8ef-0ab664880a2f
+		summarizeBy: none
+		sourceColumn: Product Sort
+
+	partition 'Dummy Data - Product' = m
+		mode: import
+		source =
+				let
+				    Source = #table(
+				        type table [Product = text, #"Product Sort" = Int64.Type],
+				        {{"Full Fibre 100", 1}, {"Full Fibre 500", 2}, {"Full Fibre 900", 3}, {"Full Fibre 2 Gig", 4}}
+				    )
+				in
+				    Source
+
+	changedProperty = Name
+

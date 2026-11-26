@@ -1,0 +1,31 @@
+/// Sales channels (synthetic). One row per channel.
+table 'Dummy Data - Channel'
+	lineageTag: 1edc19a8-9261-42a3-a961-66e5a72898c4
+
+	column Channel
+		dataType: string
+		lineageTag: cb48b4ed-ae96-4b49-9220-6a186b5aecda
+		summarizeBy: none
+		sourceColumn: Channel
+		sortByColumn: 'Channel Sort'
+
+	column 'Channel Sort'
+		dataType: int64
+		isHidden
+		lineageTag: c688b8cd-b1f3-46d2-a1db-decd3cbeeae7
+		summarizeBy: none
+		sourceColumn: Channel Sort
+
+	partition 'Dummy Data - Channel' = m
+		mode: import
+		source =
+				let
+				    Source = #table(
+				        type table [Channel = text, #"Channel Sort" = Int64.Type],
+				        {{"Online", 1}, {"Affiliate", 2}, {"Retail", 3}, {"Telesales", 4}}
+				    )
+				in
+				    Source
+
+	changedProperty = Name
+

@@ -46,6 +46,9 @@ jobs:
           sudo apt-get install -y -qq curl
           sudo apt-get install -y -qq jq
 
+      - name: Apply Theme Colours formatting to reports
+        run: bash scripts/apply_theme_colours.sh --source fabric
+
       - name: Import item definitions
         run: bash scripts/import_workspace.sh --env dev --source fabric
         env:

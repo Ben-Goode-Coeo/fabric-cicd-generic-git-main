@@ -255,6 +255,30 @@ Creates the target workspace and assigns it to the configured capacity. If the w
 | `--env <name>` | Environment config to load (required) |
 | `--admin <id>` | Entra object ID of a user or group to add as workspace Admin |
 
+### apply_theme_colours.sh
+
+```text
+scripts/apply_theme_colours.sh [--source <dir>] [--template <name>] [--report <name>]... [--keep-literals] [--check]
+```
+
+Gives every report the light/dark conditional formatting from the template report (default `BT Theme Demo`). CI runs it before each import, so a new report picks up the formatting when it's deployed. Run it locally and commit the result to keep the repo in step with what's deployed.
+
+For each report other than the template, the script:
+
+1. Copies the `Theme Colours` and `Display Mode` tables from the template semantic model into the report's semantic model, if they're missing, and adds their `ref table` lines to `model.tmdl`. It leaves out measures that depend on measures that exist only in the template model, such as `Colour Variance`.
+2. Copies the template's custom theme file into the report and registers it in `report.json`, if the report has no custom theme.
+3. Binds visual colours to the `Theme Colours` measures (rules in [scripts/lib/theme_colours.jq](scripts/lib/theme_colours.jq)):
+
+| Visual | Property | Measure |
+|--------|----------|---------|
+| All data visuals | Background, border, title font | `Colour Surface`, `Colour Border`, `Colour Text` |
+| Bar, column, line, area and combo charts | Axis labels, data labels | `Colour Muted Text`, `Colour Text` |
+| Charts with a single series | Data colour | `Colour Brand` |
+| Card (new) | Value, label, fill, accent bar | Rules on `Display Mode Index` using the `Colour Text`, `Colour Muted Text`, `Colour Surface` and `Colour Brand` hex values |
+| Table, matrix | Cell background and font, per value field | `Colour Surface`, `Colour Text` |
+
+The script doesn't change colours that are already bound to a measure, rule or gradient. It replaces hard-coded hex colours unless you pass `--keep-literals`. It skips shapes, images, text boxes and buttons, and it doesn't change page backgrounds. It also skips reports bound to a semantic model outside this repo (`byConnection`), because it can't add the tables to that model. Running it twice changes nothing the second time. With `--check`, it lists the files that need updating and exits non-zero without writing anything.
+
 ## Known limitations
 
 * Service principal support depends on item type. The export and import operations succeed only when every item involved supports service principal operations.

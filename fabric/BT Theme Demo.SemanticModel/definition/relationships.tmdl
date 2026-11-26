@@ -1,0 +1,16 @@
+relationship Sales_Month_Date_Month
+	fromColumn: 'Dummy Data - Measures'.Month
+	toColumn: 'Dummy Data - Date'.Month
+
+relationship Sales_Product_Product_Product
+	fromColumn: 'Dummy Data - Measures'.Product
+	toColumn: 'Dummy Data - Product'.Product
+
+relationship Sales_Channel_Channel_Channel
+	fromColumn: 'Dummy Data - Measures'.Channel
+	toColumn: 'Dummy Data - Channel'.Channel
+
+relationship Sales_Region_Region_Region
+	fromColumn: 'Dummy Data - Measures'.Region
+	toColumn: 'Dummy Data - Region'.Region
+
