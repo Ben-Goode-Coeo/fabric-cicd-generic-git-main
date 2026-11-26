@@ -13,6 +13,6 @@ annotation PBI_QueryOrder = ["DirectLake - Lakehouse_Sketch"]
 annotation PBI_ProTooling = ["DirectLakeOnOneLakeInWeb","WebModelingEdit"]
 
 ref table callsfromnotebook
-
 ref table 'Display Mode'
 ref table 'Theme Colours'
+

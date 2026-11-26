@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "RPT-CallData-OG"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1723fec9-ecfb-a569-4ecf-fd32f6bdf386"
+  }
+}
